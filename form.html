@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }} · Anime Vault{% endblock %}
+{% block content %}
+<section class="form-page">
+  <a class="back-link" href="{{ url_for('index') }}">← Back to collection</a>
+  <div class="form-heading"><div class="eyebrow">BUILD YOUR LIBRARY</div><h1>{{ page_title }}<span class="gradient-text">.</span></h1><p>Add the details. Keep the memories.</p></div>
+  <form class="anime-form" method="post" enctype="multipart/form-data">
+    <div class="form-main">
+      <label class="field full"><span>ANIME TITLE *</span><input name="title" required maxlength="160" placeholder="e.g. Demon Slayer" value="{{ item.title if item else '' }}"></label>
+      <label class="field"><span>GENRE</span><input name="genre" placeholder="Action, Fantasy, Adventure" value="{{ item.genre if item else '' }}"></label>
+      <label class="field"><span>WATCH STATUS</span><select name="status">{% for s in ['Watching','Completed','Plan to Watch','On Hold','Dropped'] %}<option {% if item and item.status==s %}selected{% elif not item and s=='Plan to Watch' %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></label>
+      <label class="field"><span>TOTAL EPISODES</span><input type="number" name="total_episodes" min="0" value="{{ item.total_episodes if item else 0 }}"></label>
+      <label class="field"><span>WATCHED EPISODES</span><input type="number" name="watched_episodes" min="0" value="{{ item.watched_episodes if item else 0 }}"></label>
+      <label class="field"><span>YOUR RATING (0–10)</span><input type="number" name="rating" min="0" max="10" step="0.1" value="{{ item.rating if item else 0 }}"></label>
+      <label class="field"><span>POSTER IMAGE URL</span><input name="image_url" type="url" placeholder="https://example.com/poster.jpg" value="{{ item.image_url if item else '' }}"></label>
+      <div class="upload-field"><label class="field"><span>OR UPLOAD A POSTER</span><input type="file" name="poster" accept=".png,.jpg,.jpeg,.webp,.gif"></label><small>PNG, JPG, WEBP or GIF · Maximum 5 MB</small><div class="image-preview" id="imagePreview">Poster preview appears here</div></div>
+      <label class="field full"><span>PERSONAL NOTES</span><textarea name="notes" rows="4" placeholder="Favorite characters, thoughts, season notes…">{{ item.notes if item else '' }}</textarea></label>
+      <label class="favorite-check"><input type="checkbox" name="is_favorite" {% if item and item.is_favorite %}checked{% endif %}><span>♥ Add to favorites</span></label>
+    </div>
+    <div class="form-footer"><a class="secondary-btn" href="{{ url_for('index') }}">Cancel</a><button class="primary-btn" type="submit">{{ 'Save changes' if item else 'Add to collection' }} <span>↗</span></button></div>
+  </form>
+</section>
+{% endblock %}

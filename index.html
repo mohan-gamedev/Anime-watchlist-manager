@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}My Collection · Anime Vault{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <div class="eyebrow"><span class="pulse-dot"></span> YOUR ANIME UNIVERSE</div>
+    <h1>Every story.<br><span class="gradient-text">One collection.</span></h1>
+    <p>Keep track of your worlds, characters, and every episode worth remembering.</p>
+    <a class="primary-btn" href="{{ url_for('add_anime') }}">＋ Add to collection <span>↗</span></a>
+  </div>
+  <div class="hero-art">
+    <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
+    <div class="hero-symbol">✦</div><div class="hero-chip chip-top">COLLECT YOUR JOURNEY</div>
+    <div class="hero-chip chip-bottom">YOUR NEXT EPISODE AWAITS ↗</div>
+  </div>
+</section>
+
+<section class="stats-grid">
+  <article class="stat-card"><span class="stat-icon">◈</span><span class="stat-label">TOTAL TITLES</span><strong>{{ stats.total or 0 }}</strong><small>In your collection</small></article>
+  <article class="stat-card"><span class="stat-icon violet">◉</span><span class="stat-label">WATCHING NOW</span><strong>{{ stats.watching or 0 }}</strong><small>Stories in progress</small></article>
+  <article class="stat-card"><span class="stat-icon cyan">✧</span><span class="stat-label">COMPLETED</span><strong>{{ stats.completed or 0 }}</strong><small>Adventures finished</small></article>
+  <article class="stat-card"><span class="stat-icon gold">★</span><span class="stat-label">EPISODES WATCHED</span><strong>{{ stats.episodes or 0 }}</strong><small>Average rating {{ "%.1f"|format(stats.avg_rating or 0) }}/10</small></article>
+</section>
+
+<section class="collection-section">
+  <div class="section-heading">
+    <div><div class="eyebrow">THE LIBRARY</div><h2>Your collection <span class="count-pill">{{ anime|length }}</span></h2></div>
+    <form class="filters" method="get" action="{{ url_for('index') }}">
+      <label class="search-box"><span>⌕</span><input name="q" value="{{ search }}" placeholder="Search titles or genres…"></label>
+      <select name="status" aria-label="Filter by status"><option value="">All statuses</option>{% for s in ['Watching','Completed','Plan to Watch','On Hold','Dropped'] %}<option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+      <select name="sort" aria-label="Sort collection"><option value="recent" {% if selected_sort=='recent' %}selected{% endif %}>Recently added</option><option value="title" {% if selected_sort=='title' %}selected{% endif %}>Title A–Z</option><option value="rating" {% if selected_sort=='rating' %}selected{% endif %}>Top rated</option><option value="progress" {% if selected_sort=='progress' %}selected{% endif %}>Most watched</option></select>
+      <button class="filter-btn" type="submit">Filter</button>
+    </form>
+  </div>
+
+  {% if anime %}
+  <div class="anime-grid">
+    {% for item in anime %}
+    <article class="anime-card reveal">
+      <div class="poster-wrap">
+        {% if item.image_url %}<img class="poster" src="{{ item.image_url }}" alt="{{ item.title }} poster" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">{% endif %}
+        <div class="poster-placeholder" {% if item.image_url %}style="display:none"{% endif %}><span>✦</span><small>NO POSTER</small></div>
+        <div class="poster-shade"></div>
+        <span class="status-badge status-{{ item.status|lower|replace(' ','-') }}">{{ item.status }}</span>
+        <form method="post" action="{{ url_for('toggle_favorite', anime_id=item.id) }}"><button class="favorite-btn {% if item.is_favorite %}is-favorite{% endif %}" aria-label="Toggle favorite" title="Favorite">{% if item.is_favorite %}♥{% else %}♡{% endif %}</button></form>
+        <div class="poster-title"><span class="genre-line">{{ item.genre or 'ANIME' }}</span><h3>{{ item.title }}</h3></div>
+      </div>
+      <div class="card-body">
+        <div class="card-meta"><span>EPISODES</span><strong>{{ item.watched_episodes }} <i>/ {{ item.total_episodes if item.total_episodes else '—' }}</i></strong></div>
+        <div class="progress-track"><span style="width:{{ (100 if item.status=='Completed' else (item.watched_episodes / item.total_episodes * 100 if item.total_episodes else 0))|round(1) }}%"></span></div>
+        <div class="card-bottom"><span class="rating">★ {{ "%.1f"|format(item.rating) }}</span><div class="card-actions">
+          <form method="post" action="{{ url_for('update_progress', anime_id=item.id) }}"><input type="hidden" name="action" value="minus"><button class="mini-btn" title="Remove episode">−</button></form>
+          <form method="post" action="{{ url_for('update_progress', anime_id=item.id) }}"><input type="hidden" name="action" value="plus"><button class="mini-btn plus" title="Add episode">＋</button></form>
+          <a class="mini-btn" href="{{ url_for('edit_anime', anime_id=item.id) }}" title="Edit">✎</a>
+          <form method="post" action="{{ url_for('delete_anime', anime_id=item.id) }}" data-confirm="Delete {{ item.title }} from your collection?"><button class="mini-btn delete-btn" title="Delete">⌫</button></form>
+        </div></div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="empty-orb">✦</div><h3>Your next adventure starts here.</h3><p>No anime found. Add a title or adjust your search filters.</p><a class="primary-btn" href="{{ url_for('add_anime') }}">＋ Add your first anime</a></div>
+  {% endif %}
+</section>
+{% endblock %}
