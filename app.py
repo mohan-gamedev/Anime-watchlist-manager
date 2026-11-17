@@ -30,7 +30,7 @@ def db_connection():
         database=os.getenv("DB_NAME"),
     )
 
-def query_db(sql, params=(), fetch=False, commit=False):
+def query_db(sql, params=(), fetch=True, commit=True):
     conn = db_connection()
     cursor = conn.cursor(dictionary=True)
     try:
