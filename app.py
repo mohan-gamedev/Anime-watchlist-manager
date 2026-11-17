@@ -23,11 +23,11 @@ ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "gif"}
 def db_connection():
     """Open a fresh MySQL connection for this request."""
     return mysql.connector.connect(
-        host=os.getenv("DB_HOST", "127.0.0.1"),
-        port=int(os.getenv("DB_PORT", "3306")),
-        user=os.getenv("DB_USER", "root"),
+        host=os.getenv("DB_HOST"),
+        port=int(os.getenv("DB_PORT")),
+        user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD", ""),
-        database=os.getenv("DB_NAME", "anime_watchlist"),
+        database=os.getenv("DB_NAME"),
     )
 
 def query_db(sql, params=(), fetch=False, commit=False):
